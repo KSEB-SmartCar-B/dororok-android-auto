@@ -166,13 +166,23 @@ class BrowseTree(
             mediaIdToChildren[albumMetadata.id!!] = it
         }
     }
+
+    fun getRecentItems(): List<MediaMetadataCompat> {
+        return mediaIdToChildren[UAMP_RECENT_ROOT] ?: emptyList()
+    }
+
+    @Synchronized
+    fun updateRecentItems(recentItems: List<MediaMetadataCompat>) {
+        mediaIdToChildren[UAMP_RECENT_ROOT] = recentItems.toMutableList()
+    }
 }
 
 const val UAMP_BROWSABLE_ROOT = "/"
 const val UAMP_EMPTY_ROOT = "@empty@"
 const val UAMP_RECOMMENDED_ROOT = "__RECOMMENDED__"
-const val UAMP_RECENT_ROOT = "__RECENT__"
+const val UAMP_RECENTS_ROOT = "__RECENT__"
 const val UAMP_MY_ROOT = "__MY__"
+const val UAMP_RECENT_ROOT = "__RECENT__"
 
 const val MEDIA_SEARCH_SUPPORTED = "android.media.browse.SEARCH_SUPPORTED"
 
