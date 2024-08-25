@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     @Override
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
         menuInflater.inflate(com.example.android.uamp.media.R.menu.main_activity_menu, menu)
 
