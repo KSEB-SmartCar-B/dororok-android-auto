@@ -20,6 +20,7 @@ import android.content.Context
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
+import android.util.Log
 import com.example.android.uamp.media.MusicService
 import com.example.android.uamp.media.R
 import com.example.android.uamp.media.extensions.album
@@ -59,12 +60,14 @@ class BrowseTree(
     musicSource: MusicSource,
     val recentMediaId: String? = null
 ) {
+    //앨범 id를 키로 저장하여 해당 앨범 곡 리스트 의미.
     private val mediaIdToChildren = mutableMapOf<String, MutableList<MediaMetadataCompat>>()
 
     /**
      * Whether to allow clients which are unknown (not on the allowed list) to use search on this
      * [BrowseTree].
      */
+    //모든 클라이언트 검색 가능
     val searchableByUnknownCaller = true
 
     /**
@@ -80,24 +83,35 @@ class BrowseTree(
 
         val recommendedMetadata = MediaMetadataCompat.Builder().apply {
             id = UAMP_RECOMMENDED_ROOT
-            title = context.getString(R.string.recommended_title)
+            //title = context.getString(R.string.recommended_title)
             albumArtUri = RESOURCE_ROOT_URI +
                     context.resources.getResourceEntryName(R.drawable.ic_recommended)
             flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
         }.build()
 
-        val albumsMetadata = MediaMetadataCompat.Builder().apply {
-            id = UAMP_ALBUMS_ROOT
-            title = context.getString(R.string.albums_title)
+        val recentMetaData = MediaMetadataCompat.Builder().apply {
+            id = UAMP_RECENT_ROOT
+            //title = context.getString(R.string.recent_title)
             albumArtUri = RESOURCE_ROOT_URI +
-                    context.resources.getResourceEntryName(R.drawable.ic_album)
+                    context.resources.getResourceEntryName(R.drawable.ic_recents)
+            flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
+        }.build()
+
+        val myMetaData = MediaMetadataCompat.Builder().apply {
+            id = UAMP_MY_ROOT
+            //title = context.getString(R.string.my_title)
+            albumArtUri = RESOURCE_ROOT_URI +
+                    context.resources.getResourceEntryName(R.drawable.ic_my)
             flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
         }.build()
 
         rootList += recommendedMetadata
-        rootList += albumsMetadata
+        rootList += recentMetaData
+        rootList += myMetaData
         mediaIdToChildren[UAMP_BROWSABLE_ROOT] = rootList
 
+        //제공된 미디어 항목에 대해 해당 앨범의 루트 노드 생성.
+        //추천 항목과 최근 항목에 추가.
         musicSource.forEach { mediaItem ->
             val albumMediaId = mediaItem.album.urlEncoded
             val albumChildren = mediaIdToChildren[albumMediaId] ?: buildAlbumRoot(mediaItem)
@@ -116,6 +130,8 @@ class BrowseTree(
                 mediaIdToChildren[UAMP_RECENT_ROOT] = mutableListOf(mediaItem)
             }
         }
+
+        Log.d("BrowseTree", "Root List Items: $rootList")
     }
 
     /**
@@ -141,9 +157,9 @@ class BrowseTree(
         }.build()
 
         // Adds this album to the 'Albums' category.
-        val rootList = mediaIdToChildren[UAMP_ALBUMS_ROOT] ?: mutableListOf()
+        val rootList = mediaIdToChildren[UAMP_MY_ROOT] ?: mutableListOf()
         rootList += albumMetadata
-        mediaIdToChildren[UAMP_ALBUMS_ROOT] = rootList
+        mediaIdToChildren[UAMP_MY_ROOT] = rootList
 
         // Insert the album's root with an empty list for its children, and return the list.
         return mutableListOf<MediaMetadataCompat>().also {
@@ -155,8 +171,8 @@ class BrowseTree(
 const val UAMP_BROWSABLE_ROOT = "/"
 const val UAMP_EMPTY_ROOT = "@empty@"
 const val UAMP_RECOMMENDED_ROOT = "__RECOMMENDED__"
-const val UAMP_ALBUMS_ROOT = "__ALBUMS__"
 const val UAMP_RECENT_ROOT = "__RECENT__"
+const val UAMP_MY_ROOT = "__MY__"
 
 const val MEDIA_SEARCH_SUPPORTED = "android.media.browse.SEARCH_SUPPORTED"
 
