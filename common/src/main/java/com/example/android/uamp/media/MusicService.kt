@@ -316,10 +316,40 @@ open class MusicService : MediaBrowserServiceCompat() {
         parentMediaId: String,
         result: Result<List<MediaItem>>
     ) {
+        if (parentMediaId == UAMP_RECENT_ROOT) {
+            // BrowseTree에서 최근 항목 리스트를 가져옴
+            val recentItems = browseTree[UAMP_RECENT_ROOT]?.map { item ->
+                MediaItem(item.description, item.flag)
+            }
+            result.sendResult(recentItems)
+        } else {
+            // 다른 미디어 항목 로드
+            val resultsSent = mediaSource.whenReady { successfullyInitialized ->
+                if (successfullyInitialized) {
+                    val children = browseTree[parentMediaId]?.map { item ->
+                        MediaItem(item.description, item.flag)
+                    }?: emptyList()
+                    result.sendResult(children)
+                } else {
+                    mediaSession.sendSessionEvent(NETWORK_FAILURE, null)
+                    result.sendResult(null)
+                }
+            }
 
-        /**
+            if (!resultsSent) {
+                result.detach()
+            }
+        }
+    }
+
+    /*override fun onLoadChildren(
+        parentMediaId: String,
+        result: Result<List<MediaItem>>
+    ) {
+
+        *//**
          * If the caller requests the recent root, return the most recently played song.
-         */
+         *//*
         if (parentMediaId == UAMP_RECENT_ROOT) {
             result.sendResult(storage.loadRecentSong()?.let { song -> listOf(song) })
         } else {
@@ -346,7 +376,7 @@ open class MusicService : MediaBrowserServiceCompat() {
                 result.detach()
             }
         }
-    }
+    }*/
 
     /**
      * Returns a list of [MediaItem]s that match the given search query
@@ -601,16 +631,37 @@ open class MusicService : MediaBrowserServiceCompat() {
                     notificationManager.showNotificationForPlayer(currentPlayer)
                     if (playbackState == Player.STATE_READY) {
 
-                        // When playing/paused save the current media item in persistent
-                        // storage so that playback can be resumed between device reboots.
-                        // Search for "media resumption" for more information.
+                        // 현재 재생 중인 미디어 항목을 가져와 recent 항목에 추가
+                        val currentItem = currentPlaylistItems.getOrNull(currentMediaItemIndex)
+                        if (currentItem != null) {
+                            // BrowseTree에 접근하여 recent 항목 업데이트
+                            val recentItems = browseTree[UAMP_RECENT_ROOT]?.toMutableList() ?: mutableListOf()
+
+                            // 중복 방지: 이미 존재하는 경우 제거하고 다시 추가
+                            recentItems.removeAll { it.id == currentItem.id }
+                            recentItems.add(0, currentItem) // 최신 항목이 맨 앞에 오도록 추가
+
+                            // 최근 항목이 너무 많아지지 않도록 제한 (예: 최대 10개)
+                            if (recentItems.size > 10) {
+                                recentItems.removeAt(recentItems.size - 1)
+                            }
+
+                            // 업데이트된 리스트를 BrowseTree에 반영
+                            browseTree.updateRecentItems(recentItems)
+
+                            // **클라이언트에게 데이터 변경 알림**
+                            mediaSession.controller.sendCommand("update_recent", null, null)
+                            mediaSession.sendSessionEvent("update_recent", null)
+                            this@MusicService.notifyChildrenChanged(UAMP_RECENT_ROOT)
+
+                            Log.d("musicService","recentItems: ${recentItems}")
+                        }
+
+                        // 현재 재생 중인 미디어 항목을 저장하여 장치 재부팅 후에도 유지
                         saveRecentSongToStorage()
 
                         if (!playWhenReady) {
-                            // If playback is paused we remove the foreground state which allows the
-                            // notification to be dismissed. An alternative would be to provide a
-                            // "close" button in the notification which stops playback and clears
-                            // the notification.
+                            // 재생이 일시 중지된 경우 포그라운드 상태를 해제하여 알림을 닫을 수 있도록 설정
                             stopForeground(false)
                             isForegroundService = false
                         }
@@ -621,6 +672,7 @@ open class MusicService : MediaBrowserServiceCompat() {
                 }
             }
         }
+
 
         override fun onEvents(player: Player, events: Player.Events) {
             if (events.contains(EVENT_POSITION_DISCONTINUITY)
