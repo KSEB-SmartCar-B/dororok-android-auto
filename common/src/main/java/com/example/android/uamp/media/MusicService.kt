@@ -352,21 +352,19 @@ open class MusicService : MediaBrowserServiceCompat() {
             result.sendResult(recommendedItems)
         } else {
             // 다른 미디어 항목 로드
-            val resultsSent = mediaSource.whenReady { successfullyInitialized ->
+            /*val resultsSent = mediaSource.whenReady { successfullyInitialized ->
                 if (successfullyInitialized) {
                     val children = browseTree[parentMediaId]?.map { item ->
                         MediaItem(item.description, item.flag)
                     } ?: emptyList()
-                    result.sendResult(children)
+                    result.sendResIult(children)
                 } else {
                     mediaSession.sendSessionEvent(NETWORK_FAILURE, null)
                     result.sendResult(null)
                 }
-            }
+            }*/
 
-            if (!resultsSent) {
-                result.detach()
-            }
+           pu
         }
     }
 
