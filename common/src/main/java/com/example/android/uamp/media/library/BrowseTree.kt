@@ -91,15 +91,17 @@ class BrowseTree(
      */
 
     val situationList = listOf(
-        Situation(1, "일상", R.drawable.musicmode_daily),
-        Situation(2, "출근", R.drawable.musicmode_go_to_work),
-        Situation(3, "퇴근", R.drawable.musicmode_get_off_work),
-        Situation(4, "여행", R.drawable.musicmode_travel),
-        Situation(5, "드라이브", R.drawable.musicmode_drive),
-        Situation(6, "도로록 Pick!", R.drawable.musicmode_dororok_pick),
-        Situation(7, "데이트", R.drawable.musicmode_date),
-        Situation(8,"친구들과",R.drawable.musicmode_friends),
+        Situation(1, "일상", "daily", R.drawable.musicmode_daily),
+        Situation(2, "출근","toWork", R.drawable.musicmode_go_to_work),
+        Situation(3, "퇴근", "leaveWork",R.drawable.musicmode_get_off_work),
+        Situation(4, "여행", "travel",R.drawable.musicmode_travel),
+        Situation(5, "드라이브", "drive",R.drawable.musicmode_drive),
+        Situation(6, "도로록 Pick!", "dororok",R.drawable.musicmode_dororok_pick),
+        Situation(7, "데이트", "withLover",R.drawable.musicmode_date),
+        Situation(8,"친구들과","withFriends",R.drawable.musicmode_friends),
         )
+
+    private val situationLists = SituationLists()
 
     //저장된 음악
 //    val savedMusicList = listOf(
@@ -262,6 +264,24 @@ class BrowseTree(
 
     operator fun set(uampMyRoot: String, value: List<Any>) {
 
+    }
+}
+
+// 상황에 대한 리스트 매핑 구조
+class SituationLists {
+    private val musicLists = mapOf(
+        "일상" to MusicList().daily,
+        "출근" to MusicList().toWork,
+        "퇴근" to MusicList().leaveWork,
+        "여행" to MusicList().travel,
+        "드라이브" to MusicList().drive,
+        "도로록 Pick!" to MusicList().dororok,
+        "데이트" to MusicList().withLover,
+        "친구들과" to MusicList().withFriends
+    )
+
+    fun getListForSituation(title: String): List<MediaMetadataCompat>? {
+        return musicLists[title]
     }
 }
 
