@@ -31,6 +31,7 @@ import com.example.android.uamp.media.extensions.downloadStatus
 import com.example.android.uamp.media.extensions.duration
 import com.example.android.uamp.media.extensions.flag
 import com.example.android.uamp.media.extensions.genre
+import com.example.android.uamp.media.extensions.heartIconUri
 import com.example.android.uamp.media.extensions.id
 import com.example.android.uamp.media.extensions.mediaUri
 import com.example.android.uamp.media.extensions.title

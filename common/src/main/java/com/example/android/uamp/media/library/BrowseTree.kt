@@ -17,12 +17,19 @@
 package com.example.android.uamp.media.library
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Environment
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
 import android.util.Log
+import android.util.LogPrinter
 import com.example.android.uamp.media.MusicService
 import com.example.android.uamp.media.R
+import com.example.android.uamp.media.SavedMusic
+import com.example.android.uamp.media.Situation
 import com.example.android.uamp.media.extensions.album
 import com.example.android.uamp.media.extensions.albumArt
 import com.example.android.uamp.media.extensions.albumArtUri
@@ -32,6 +39,10 @@ import com.example.android.uamp.media.extensions.id
 import com.example.android.uamp.media.extensions.title
 import com.example.android.uamp.media.extensions.trackNumber
 import com.example.android.uamp.media.extensions.urlEncoded
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.util.UUID
 
 /**
  * Represents a tree of media that's used by [MusicService.onLoadChildren].
@@ -78,6 +89,30 @@ class BrowseTree(
      *
      * TODO: Expand to allow more browsing types.
      */
+
+    val situationList = listOf(
+        Situation(1, "일상", R.drawable.musicmode_daily),
+        Situation(2, "출근", R.drawable.musicmode_go_to_work),
+        Situation(3, "퇴근", R.drawable.musicmode_get_off_work),
+        Situation(4, "여행", R.drawable.musicmode_travel),
+        Situation(5, "드라이브", R.drawable.musicmode_drive),
+        Situation(6, "도로록 Pick!", R.drawable.musicmode_dororok_pick),
+        Situation(7, "데이트", R.drawable.musicmode_date),
+        Situation(8,"친구들과",R.drawable.musicmode_friends),
+        )
+
+    //저장된 음악
+//    val savedMusicList = listOf(
+//        SavedMusic(R.string.dance_title.toString(), R.string.dance_singer.toString(), R.drawable.genre_dance),
+//        SavedMusic(R.string.balad_title.toString(), R.string.balad_singer.toString(), R.drawable.genre_dance),
+//        SavedMusic(R.string.indi_title.toString(), R.string.indi_singer.toString(), R.drawable.genre_dance),
+//        SavedMusic(R.string.trot_title.toString(), R.string.trot_singer.toString(), R.drawable.genre_dance),
+//        SavedMusic(R.string.ost_title.toString(), R.string.ost_singer.toString(), R.drawable.genre_dance),
+//        SavedMusic(R.string.pop_title.toString(), R.string.pop_singer.toString(), R.drawable.genre_dance),
+//        SavedMusic(R.string.band_title.toString(), R.string.band_singer.toString(), R.drawable.genre_dance),
+//        SavedMusic(R.string.hiphop_title.toString(), R.string.hiphop_singer.toString(), R.drawable.genre_dance),
+//    )
+
     init {
         val rootList = mediaIdToChildren[UAMP_BROWSABLE_ROOT] ?: mutableListOf()
 
@@ -110,6 +145,15 @@ class BrowseTree(
         rootList += myMetaData
         mediaIdToChildren[UAMP_BROWSABLE_ROOT] = rootList
 
+        // Convert situationList to a list of MediaMetadataCompat
+        val situationMetadataList = situationList.map { situation ->
+            convertToMediaMetadataCompat(situation)
+        }
+        Log.d("browseTree","init - ${situationMetadataList}")
+
+// Update mediaIdToChildren with the converted list
+        mediaIdToChildren[UAMP_RECOMMENDED_ROOT] = situationMetadataList.toMutableList()
+
         //제공된 미디어 항목에 대해 해당 앨범의 루트 노드 생성.
         //추천 항목과 최근 항목에 추가.
         musicSource.forEach { mediaItem ->
@@ -117,13 +161,7 @@ class BrowseTree(
             val albumChildren = mediaIdToChildren[albumMediaId] ?: buildAlbumRoot(mediaItem)
             albumChildren += mediaItem
 
-            // Add the first track of each album to the 'Recommended' category
-            if (mediaItem.trackNumber == 1L) {
-                val recommendedChildren = mediaIdToChildren[UAMP_RECOMMENDED_ROOT]
-                    ?: mutableListOf()
-                recommendedChildren += mediaItem
-                mediaIdToChildren[UAMP_RECOMMENDED_ROOT] = recommendedChildren
-            }
+            // Add the first track of each album to the 'Recommended' category based on situations
 
             // If this was recently played, add it to the recent root.
             if (mediaItem.id == recentMediaId) {
@@ -146,6 +184,52 @@ class BrowseTree(
      * marking the item as [MediaItem.FLAG_BROWSABLE], since it will have child
      * node(s) AKA at least 1 song.
      */
+
+    private fun convertToMediaMetadataCompat(situation: Situation): MediaMetadataCompat {
+        // Convert resource ID to Bitmap
+        val bitmap = try {
+            BitmapFactory.decodeResource(context.resources, situation.image)
+        } catch (e: Exception) {
+            Log.e("MediaMetadata", "Error decoding resource to Bitmap", e)
+            null
+        }
+
+        // Convert Bitmap to Uri
+        val bitmapUri = bitmap?.let { bitmapToUri(context, it) }
+
+        return MediaMetadataCompat.Builder()
+            .putString(MediaMetadataCompat.METADATA_KEY_TITLE, situation.title)
+            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, situation.id.toString())
+            .apply {
+                // Only add Bitmap if it is not null
+                if (bitmap != null) {
+                    putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap)
+                }
+            }
+            .apply {
+                // Only add URI if it is not null
+                if (bitmapUri != null) {
+                    putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, bitmapUri.toString())
+                }
+            }
+            .build()
+    }
+
+    fun bitmapToUri(context: Context, bitmap: Bitmap): Uri? {
+        val filename = "${UUID.randomUUID()}.png"
+        val file = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), filename)
+
+        try {
+            FileOutputStream(file).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            }
+            return Uri.fromFile(file)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
     private fun buildAlbumRoot(mediaItem: MediaMetadataCompat): MutableList<MediaMetadataCompat> {
         val albumMetadata = MediaMetadataCompat.Builder().apply {
             id = mediaItem.album.urlEncoded
@@ -175,14 +259,17 @@ class BrowseTree(
     fun updateRecentItems(recentItems: List<MediaMetadataCompat>) {
         mediaIdToChildren[UAMP_RECENT_ROOT] = recentItems.toMutableList()
     }
+
+    operator fun set(uampMyRoot: String, value: List<Any>) {
+
+    }
 }
 
 const val UAMP_BROWSABLE_ROOT = "/"
 const val UAMP_EMPTY_ROOT = "@empty@"
 const val UAMP_RECOMMENDED_ROOT = "__RECOMMENDED__"
-const val UAMP_RECENTS_ROOT = "__RECENT__"
-const val UAMP_MY_ROOT = "__MY__"
 const val UAMP_RECENT_ROOT = "__RECENT__"
+const val UAMP_MY_ROOT = "__MY__"
 
 const val MEDIA_SEARCH_SUPPORTED = "android.media.browse.SEARCH_SUPPORTED"
 
