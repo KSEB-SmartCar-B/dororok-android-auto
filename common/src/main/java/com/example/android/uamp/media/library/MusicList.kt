@@ -47,7 +47,7 @@ class MusicList {
             album = "dororok"
             duration = 201
             mediaUri = "http://20.41.105.73/media/dororok/gf.mp3"
-            albumArtUri = "https://i.scdn.co/image/gf.jpg"
+            albumArtUri = "http://20.41.105.73/media/dororok/gf.jpg"
             trackNumber = 1
             flag = MediaItem.FLAG_PLAYABLE
         }.build(),

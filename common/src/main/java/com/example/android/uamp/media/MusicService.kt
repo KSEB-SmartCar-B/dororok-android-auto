@@ -38,12 +38,22 @@ import androidx.media.MediaBrowserServiceCompat.BrowserRoot.EXTRA_RECENT
 import com.example.android.uamp.media.extensions.album
 import com.example.android.uamp.media.extensions.flag
 import com.example.android.uamp.media.extensions.id
+import com.example.android.uamp.media.extensions.title
 import com.example.android.uamp.media.extensions.toMediaItem
 import com.example.android.uamp.media.extensions.trackNumber
 import com.example.android.uamp.media.library.AbstractMusicSource
 import com.example.android.uamp.media.library.BrowseTree
+import com.example.android.uamp.media.library.DOROROK_DAILY
+import com.example.android.uamp.media.library.DOROROK_DATE
+import com.example.android.uamp.media.library.DOROROK_DRIVE
+import com.example.android.uamp.media.library.DOROROK_FRIENDS
+import com.example.android.uamp.media.library.DOROROK_GO_WORK
+import com.example.android.uamp.media.library.DOROROK_OUT_WORK
+import com.example.android.uamp.media.library.DOROROK_PICK
+import com.example.android.uamp.media.library.DOROROK_TRAVEL
 import com.example.android.uamp.media.library.JsonSource
 import com.example.android.uamp.media.library.MEDIA_SEARCH_SUPPORTED
+import com.example.android.uamp.media.library.MusicList
 import com.example.android.uamp.media.library.MusicSource
 import com.example.android.uamp.media.library.UAMP_BROWSABLE_ROOT
 import com.example.android.uamp.media.library.UAMP_EMPTY_ROOT
@@ -335,14 +345,39 @@ open class MusicService : MediaBrowserServiceCompat() {
         result: Result<List<MediaItem>>
     ) {
         Log.d("musicService", "onLoadChildren - parentMediaId:${parentMediaId}")
-        // Ensure browseTree and mediaIdToChildren are properly initialized
         Log.d("musicService", "browseTree: $browseTree")
+
+        val musicList = MusicList()
+
+        // Handle each situation's specific music list
+        // 상황에 맞는 리스트를 가져옴
+        val mediaItems = when (parentMediaId) {
+            DOROROK_DAILY -> musicList.daily
+            DOROROK_GO_WORK -> musicList.toWork
+            DOROROK_OUT_WORK -> musicList.leaveWork
+            DOROROK_TRAVEL -> musicList.travel
+            DOROROK_DRIVE -> musicList.drive
+            DOROROK_PICK -> musicList.dororok
+            DOROROK_DATE -> musicList.withLover
+            DOROROK_FRIENDS -> musicList.withFriends
+            else -> null
+        }?.map { mediaItem ->
+            MediaItem(mediaItem.description, mediaItem.flag)
+        }
+
+        // 상황별 리스트가 있을 경우 결과를 반환
+        if (mediaItems != null) {
+            result.sendResult(mediaItems)
+            return
+        }
+
+        // Early return if handling known roots
         if (parentMediaId == UAMP_RECENT_ROOT) {
-            // BrowseTree에서 최근 항목 리스트를 가져옴
             val recentItems = browseTree[UAMP_RECENT_ROOT]?.map { item ->
                 MediaItem(item.description, item.flag)
             }
             result.sendResult(recentItems)
+            return
         } else if (parentMediaId == UAMP_RECOMMENDED_ROOT) {
             val recommendedItems = browseTree[UAMP_RECOMMENDED_ROOT]?.map { item ->
                 MediaItem(item.description, item.flag)
@@ -350,23 +385,61 @@ open class MusicService : MediaBrowserServiceCompat() {
 
             Log.d("musicService", "Recommended items: ${recommendedItems.size}")
             result.sendResult(recommendedItems)
-        } else {
-            // 다른 미디어 항목 로드
-            /*val resultsSent = mediaSource.whenReady { successfullyInitialized ->
+            return
+        }else if(parentMediaId == UAMP_MY_ROOT){
+            val myItems=browseTree[UAMP_MY_ROOT]?.map{item->
+                MediaItem(item.description,item.flag)
+            }
+            result.sendResult(myItems)
+            return
+        }else{
+            // 기타 미디어 소스 초기화 및 처리
+            val resultsSent = mediaSource.whenReady { successfullyInitialized ->
                 if (successfullyInitialized) {
+                    Log.d("musicService", "Media source initialized successfully.")
                     val children = browseTree[parentMediaId]?.map { item ->
                         MediaItem(item.description, item.flag)
-                    } ?: emptyList()
-                    result.sendResIult(children)
+                    }
+                    result.sendResult(children)
                 } else {
+                    Log.e("musicService", "Media source not initialized successfully. NETWORK_FAILURE event sent.")
                     mediaSession.sendSessionEvent(NETWORK_FAILURE, null)
                     result.sendResult(null)
                 }
-            }*/
+            }
 
-           pu
+            if (!resultsSent) {
+                Log.d("musicService", "Results will be sent asynchronously. Detaching result.")
+                result.detach()
+            } else {
+                Log.d("musicService", "Results sent synchronously.")
+            }
         }
+
+      /*  val resultsSent = mediaSource.whenReady { successfullyInitialized ->
+            if (successfullyInitialized) {
+                Log.d("musicService", "Media source initialized successfully.")
+                val children = browseTree[parentMediaId]?.map { item ->
+                    MediaItem(item.description, item.flag)
+                }
+                result.sendResult(children)
+            } else {
+                Log.e("musicService", "Media source not initialized successfully. NETWORK_FAILURE event sent.")
+                mediaSession.sendSessionEvent(NETWORK_FAILURE, null)
+                result.sendResult(null)
+            }
+        }
+
+        if (!resultsSent) {
+            Log.d("musicService", "Results will be sent asynchronously. Detaching result.")
+            result.detach()
+        } else {
+            Log.d("musicService", "Results sent synchronously.")
+        }*/
+
+
     }
+
 
     /*override fun onLoadChildren(
         parentMediaId: String,
@@ -441,16 +514,21 @@ open class MusicService : MediaBrowserServiceCompat() {
         // Since the playlist was probably based on some ordering (such as tracks
         // on an album), find which window index to play first so that the song the
         // user actually wants to hear plays first.
-        val initialWindowIndex = if (itemToPlay == null) 0 else metadataList.indexOf(itemToPlay)
+        Log.d("musicservice","prepareplaylist - list: ${metadataList}, itemtoplay: ${metadataList.indexOf(itemToPlay)}")
+        // 플레이리스트의 시작 인덱스를 명확히 설정합니다.
+        val initialWindowIndex = metadataList.indexOf(itemToPlay).takeIf { it >= 0 } ?: 0
+
         currentPlaylistItems = metadataList
 
         currentPlayer.playWhenReady = playWhenReady
         currentPlayer.stop()
         // Set playlist and prepare.
+        // 이 부분에서 재생 위치를 0으로 초기화합니다.
         currentPlayer.setMediaItems(
-            metadataList.map { it.toMediaItem() }, initialWindowIndex, playbackStartPositionMs
+            metadataList.map { it.toMediaItem() }, initialWindowIndex, 0
         )
         currentPlayer.prepare()
+        Log.d(TAG, "preparePlaylist: Player prepared and ready to play from the start")
     }
 
     private fun switchToPlayer(previousPlayer: Player?, newPlayer: Player) {
@@ -553,7 +631,49 @@ open class MusicService : MediaBrowserServiceCompat() {
             playWhenReady: Boolean,
             extras: Bundle?
         ) {
-            mediaSource.whenReady {
+            // MusicList 객체 생성
+            val musicList = MusicList()
+
+            // 모든 MusicList 항목을 순회하면서 mediaId에 해당하는 항목을 찾음
+            val allMusicItems = listOf(
+                musicList.daily,
+                musicList.dororok,
+                musicList.drive,
+                musicList.leaveWork,
+                musicList.toWork,
+                musicList.travel,
+                musicList.withFriends,
+                musicList.withLover
+            ).flatten()
+
+            val itemToPlay: MediaMetadataCompat? = allMusicItems.find { item ->
+                item.id == mediaId
+            }
+
+            Log.d(TAG, "onPrepareFromMediaId - itemToPlay: $itemToPlay")
+            Log.d(TAG, "onPrepareFromMediaId - album: ${itemToPlay!!.album}, title: ${itemToPlay.title}, mediaUri: ${itemToPlay.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)}")
+
+
+            if (itemToPlay == null) {
+                Log.w(TAG, "Content not found: MediaID=$mediaId")
+                // 여기서 에러를 클라이언트에게 알리는 추가 코드를 넣을 수 있습니다.
+            } else {
+                val playbackStartPositionMs =
+                    extras?.getLong(
+                        MEDIA_DESCRIPTION_EXTRAS_START_PLAYBACK_POSITION_MS,
+                        C.TIME_UNSET
+                    ) ?: C.TIME_UNSET
+
+
+                // 플레이리스트 준비 및 재생
+                preparePlaylist(
+                    buildPlaylist(itemToPlay),
+                    itemToPlay,
+                    playWhenReady,
+                    playbackStartPositionMs
+                )
+            }
+           /* mediaSource.whenReady {
                 val itemToPlay: MediaMetadataCompat? = mediaSource.find { item ->
                     item.id == mediaId
                 }
@@ -576,7 +696,7 @@ open class MusicService : MediaBrowserServiceCompat() {
                         playbackStartPositionMs
                     )
                 }
-            }
+            }*/
         }
 
         /**
@@ -618,8 +738,51 @@ open class MusicService : MediaBrowserServiceCompat() {
          * @param item Item to base the playlist on.
          * @return a [List] of [MediaMetadataCompat] objects representing a playlist.
          */
-        private fun buildPlaylist(item: MediaMetadataCompat): List<MediaMetadataCompat> =
-            mediaSource.filter { it.album == item.album }.sortedBy { it.trackNumber }
+        private fun buildPlaylist(item: MediaMetadataCompat): List<MediaMetadataCompat> {
+            Log.d(TAG, "buildPlaylist - album: ${item.album}, title: ${item.title}")
+
+            val musicList = MusicList()
+
+            // 동일한 앨범을 기준으로 플레이리스트를 생성
+            return when (item.album) {
+                "daily" -> {
+                    Log.d(TAG, "buildPlaylist - matched daily album")
+                    musicList.daily
+                }
+                "dororok" -> {
+                    Log.d(TAG, "buildPlaylist - matched dororok album")
+                    musicList.dororok
+                }
+                "drive" -> {
+                    Log.d(TAG, "buildPlaylist - matched drive album")
+                    musicList.drive
+                }
+                "leaveWork" -> {
+                    Log.d(TAG, "buildPlaylist - matched leaveWork album")
+                    musicList.leaveWork
+                }
+                "toWork" -> {
+                    Log.d(TAG, "buildPlaylist - matched toWork album")
+                    musicList.toWork
+                }
+                "travel" -> {
+                    Log.d(TAG, "buildPlaylist - matched travel album")
+                    musicList.travel
+                }
+                "withFriends" -> {
+                    Log.d(TAG, "buildPlaylist - matched withFriends album")
+                    musicList.withFriends
+                }
+                "withLover" -> {
+                    Log.d(TAG, "buildPlaylist - matched withLover album")
+                    musicList.withLover
+                }
+                else -> {
+                    Log.w(TAG, "No matching album found for album: ${item.album}")
+                    emptyList()
+                }
+            }
+        }
     }
 
     /**

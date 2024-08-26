@@ -91,14 +91,14 @@ class BrowseTree(
      */
 
     val situationList = listOf(
-        Situation(1, "일상", "daily", R.drawable.musicmode_daily),
-        Situation(2, "출근","toWork", R.drawable.musicmode_go_to_work),
-        Situation(3, "퇴근", "leaveWork",R.drawable.musicmode_get_off_work),
-        Situation(4, "여행", "travel",R.drawable.musicmode_travel),
-        Situation(5, "드라이브", "drive",R.drawable.musicmode_drive),
-        Situation(6, "도로록 Pick!", "dororok",R.drawable.musicmode_dororok_pick),
-        Situation(7, "데이트", "withLover",R.drawable.musicmode_date),
-        Situation(8,"친구들과","withFriends",R.drawable.musicmode_friends),
+        Situation(DOROROK_DAILY, "일상", "daily", R.drawable.musicmode_daily),
+        Situation(DOROROK_GO_WORK, "출근","toWork", R.drawable.musicmode_go_to_work),
+        Situation(DOROROK_OUT_WORK, "퇴근", "leaveWork",R.drawable.musicmode_get_off_work),
+        Situation(DOROROK_TRAVEL, "여행", "travel",R.drawable.musicmode_travel),
+        Situation(DOROROK_DRIVE, "드라이브", "drive",R.drawable.musicmode_drive),
+        Situation(DOROROK_PICK, "도로록 Pick!", "dororok",R.drawable.musicmode_dororok_pick),
+        Situation(DOROROK_DATE, "데이트", "withLover",R.drawable.musicmode_date),
+        Situation(DOROROK_FRIENDS,"친구들과","withFriends",R.drawable.musicmode_friends),
         )
 
     private val situationLists = SituationLists()
@@ -142,9 +142,18 @@ class BrowseTree(
             flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
         }.build()
 
+        val moreMetaData = MediaMetadataCompat.Builder().apply {
+            id = UAMP_MORE_ROOT
+            //title = context.getString(R.string.my_title)
+            albumArtUri = RESOURCE_ROOT_URI +
+                    context.resources.getResourceEntryName(R.drawable.ic_more)
+            flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
+        }.build()
+
         rootList += recommendedMetadata
         rootList += recentMetaData
         rootList += myMetaData
+        rootList += moreMetaData
         mediaIdToChildren[UAMP_BROWSABLE_ROOT] = rootList
 
         // Convert situationList to a list of MediaMetadataCompat
@@ -156,18 +165,32 @@ class BrowseTree(
 // Update mediaIdToChildren with the converted list
         mediaIdToChildren[UAMP_RECOMMENDED_ROOT] = situationMetadataList.toMutableList()
 
-        //제공된 미디어 항목에 대해 해당 앨범의 루트 노드 생성.
-        //추천 항목과 최근 항목에 추가.
-        musicSource.forEach { mediaItem ->
-            val albumMediaId = mediaItem.album.urlEncoded
-            val albumChildren = mediaIdToChildren[albumMediaId] ?: buildAlbumRoot(mediaItem)
-            albumChildren += mediaItem
+        // MusicList 객체를 생성
+        val musicList = MusicList()
 
-            // Add the first track of each album to the 'Recommended' category based on situations
+// 모든 MusicList 항목을 순회하면서 'My' 카테고리에 추가
+        val allMusicItems = listOf(
+            musicList.daily,
+            musicList.dororok,
+            musicList.drive,
+            musicList.leaveWork,
+            musicList.toWork,
+            musicList.travel,
+            musicList.withFriends,
+            musicList.withLover
+        ).flatten() // flatten을 사용하여 리스트들을 하나의 리스트로 병합
+
+        allMusicItems.forEach { mediaItem ->
+            // 'My' 카테고리에 추가
+            val myItems = mediaIdToChildren[UAMP_MY_ROOT] ?: mutableListOf()
+            myItems += mediaItem
+            mediaIdToChildren[UAMP_MY_ROOT] = myItems
+            Log.d("BrowseTree", "Added item to UAMP_MY_ROOT: $mediaItem")
 
             // If this was recently played, add it to the recent root.
             if (mediaItem.id == recentMediaId) {
                 mediaIdToChildren[UAMP_RECENT_ROOT] = mutableListOf(mediaItem)
+                Log.d("BrowseTree", "Added item to UAMP_RECENT_ROOT: $mediaItem")
             }
         }
 
@@ -232,7 +255,24 @@ class BrowseTree(
         }
     }
 
-    private fun buildAlbumRoot(mediaItem: MediaMetadataCompat): MutableList<MediaMetadataCompat> {
+    /*private fun buildAlbumRoot(mediaItem: MediaMetadataCompat): MutableList<MediaMetadataCompat> {
+        // MusicList 인스턴스를 생성합니다.
+        val musicList = MusicList()
+
+        // 특정 앨범에 해당하는 리스트를 MusicList에서 가져옵니다.
+        val albumTracks = when (mediaItem.album) {
+            "daily" -> musicList.daily
+            "dororok" -> musicList.dororok
+            "drive" -> musicList.drive
+            "leaveWork" -> musicList.leaveWork
+            "toWork" -> musicList.toWork
+            "travel" -> musicList.travel
+            "withFriends" -> musicList.withFriends
+            "withLover" -> musicList.withLover
+            else -> emptyList()
+        }
+
+        // 앨범에 해당하는 메타데이터를 생성합니다.
         val albumMetadata = MediaMetadataCompat.Builder().apply {
             id = mediaItem.album.urlEncoded
             title = mediaItem.album
@@ -242,16 +282,20 @@ class BrowseTree(
             flag = MediaItem.FLAG_BROWSABLE
         }.build()
 
-        // Adds this album to the 'Albums' category.
+        // 앨범을 'Albums' 카테고리에 추가합니다.
         val rootList = mediaIdToChildren[UAMP_MY_ROOT] ?: mutableListOf()
         rootList += albumMetadata
         mediaIdToChildren[UAMP_MY_ROOT] = rootList
 
-        // Insert the album's root with an empty list for its children, and return the list.
-        return mutableListOf<MediaMetadataCompat>().also {
+        // 앨범의 트랙 리스트를 반환할 리스트에 추가합니다.
+        val trackList = mutableListOf<MediaMetadataCompat>().also {
+            it.addAll(albumTracks)
             mediaIdToChildren[albumMetadata.id!!] = it
         }
-    }
+
+        // 트랙 리스트를 반환합니다.
+        return trackList
+    }*/
 
     fun getRecentItems(): List<MediaMetadataCompat> {
         return mediaIdToChildren[UAMP_RECENT_ROOT] ?: emptyList()
@@ -290,6 +334,16 @@ const val UAMP_EMPTY_ROOT = "@empty@"
 const val UAMP_RECOMMENDED_ROOT = "__RECOMMENDED__"
 const val UAMP_RECENT_ROOT = "__RECENT__"
 const val UAMP_MY_ROOT = "__MY__"
+const val UAMP_MORE_ROOT = "__MORE__"
+
+const val DOROROK_DAILY="daily"
+const val DOROROK_GO_WORK="toWork"
+const val DOROROK_OUT_WORK="leaveWork"
+const val DOROROK_TRAVEL="travel"
+const val DOROROK_DRIVE="drive"
+const val DOROROK_PICK="dororok"
+const val DOROROK_DATE="withLover"
+const val DOROROK_FRIENDS="withFriends"
 
 const val MEDIA_SEARCH_SUPPORTED = "android.media.browse.SEARCH_SUPPORTED"
 
