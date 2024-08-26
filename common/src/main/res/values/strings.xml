@@ -44,4 +44,24 @@
     <string name="recommended_title">Recommended</string>
     <string name="recent_title">Recents</string>
     <string name="my_title">MyPage</string>
+
+    //저장된 음악
+    <string name="dance_title">Hype Boy</string>
+    <string name="balad_title">안아줘</string>
+    <string name="indi_title">퇴근시간</string>
+    <string name="trot_title">이제 나만 믿어요</string>
+    <string name="ost_title">This Is Me</string>
+    <string name="pop_title">Shape Of You</string>
+    <string name="band_title">외톨이야</string>
+    <string name="hiphop_title">Small Girl</string>
+
+
+    <string name="dance_singer">뉴진스</string>
+    <string name="balad_singer">정준일</string>
+    <string name="indi_singer">치즈(cheeze)</string>
+    <string name="trot_singer">임영웅</string>
+    <string name="ost_singer">Keala Settle, The Greatest Showman Ensembl</string>
+    <string name="pop_singer">Ed Sheeran</string>
+    <string name="band_singer">CNBLUE</string>
+    <string name="hiphop_singer">이영지</string>
 </resources>

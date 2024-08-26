@@ -17,7 +17,7 @@
 <resources>
     <color name="colorPrimary">#840255</color>
     <color name="colorPrimaryDark">#710144</color>
-    <color name="colorAccent">#14A5A1</color>
+    <color name="colorAccent">#FFD062</color>
     <color name="darkBackground">#202020</color>
 
     <color name="grey_100">#fff1f3f4</color>

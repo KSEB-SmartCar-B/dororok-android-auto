@@ -47,7 +47,9 @@ import com.example.android.uamp.media.library.MEDIA_SEARCH_SUPPORTED
 import com.example.android.uamp.media.library.MusicSource
 import com.example.android.uamp.media.library.UAMP_BROWSABLE_ROOT
 import com.example.android.uamp.media.library.UAMP_EMPTY_ROOT
+import com.example.android.uamp.media.library.UAMP_MY_ROOT
 import com.example.android.uamp.media.library.UAMP_RECENT_ROOT
+import com.example.android.uamp.media.library.UAMP_RECOMMENDED_ROOT
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.PlaybackException
@@ -153,13 +155,15 @@ open class MusicService : MediaBrowserServiceCompat() {
                 setSessionAvailabilityListener(UampCastSessionAvailabilityListener())
                 addListener(playerListener)
             }
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             // We wouldn't normally catch the generic `Exception` however
             // calling `CastContext.getSharedInstance` can throw various exceptions, all of which
             // indicate that Cast is unavailable.
             // Related internal bug b/68009560.
-            Log.i(TAG, "Cast is not available on this device. " +
-                    "Exception thrown when attempting to obtain CastContext. " + e.message)
+            Log.i(
+                TAG, "Cast is not available on this device. " +
+                        "Exception thrown when attempting to obtain CastContext. " + e.message
+            )
             null
         }
     }
@@ -167,6 +171,9 @@ open class MusicService : MediaBrowserServiceCompat() {
     @ExperimentalCoroutinesApi
     override fun onCreate() {
         super.onCreate()
+
+//        //저장된 음악
+//        browseTree[UAMP_MY_ROOT] = savedMusicList.map { mediaItemFromSavedMusic(it) }
 
         // Build a PendingIntent that can be used to launch the UI.
         val sessionActivityPendingIntent =
@@ -225,6 +232,17 @@ open class MusicService : MediaBrowserServiceCompat() {
 
         storage = PersistentStorage.getInstance(applicationContext)
     }
+
+//    //저장된 음악
+//    private fun mediaItemFromSavedMusic(savedMusic: SavedMusic): MediaItem {
+//        val description = MediaDescriptionCompat.Builder()
+//            .setTitle(savedMusic.title)
+//            .setSubtitle(savedMusic.singer)
+//            .setIconUri(Uri.parse("android.resource://${packageName}/${savedMusic.image}"))
+//            .build()
+//
+//        return MediaItem(description, MediaItem.FLAG_PLAYABLE)
+//    }
 
     /**
      * This is the code that causes UAMP to stop playing when swiping the activity away from
@@ -316,19 +334,29 @@ open class MusicService : MediaBrowserServiceCompat() {
         parentMediaId: String,
         result: Result<List<MediaItem>>
     ) {
+        Log.d("musicService", "onLoadChildren - parentMediaId:${parentMediaId}")
+        // Ensure browseTree and mediaIdToChildren are properly initialized
+        Log.d("musicService", "browseTree: $browseTree")
         if (parentMediaId == UAMP_RECENT_ROOT) {
             // BrowseTree에서 최근 항목 리스트를 가져옴
             val recentItems = browseTree[UAMP_RECENT_ROOT]?.map { item ->
                 MediaItem(item.description, item.flag)
             }
             result.sendResult(recentItems)
+        } else if (parentMediaId == UAMP_RECOMMENDED_ROOT) {
+            val recommendedItems = browseTree[UAMP_RECOMMENDED_ROOT]?.map { item ->
+                MediaItem(item.description, item.flag)
+            } ?: emptyList()
+
+            Log.d("musicService", "Recommended items: ${recommendedItems.size}")
+            result.sendResult(recommendedItems)
         } else {
             // 다른 미디어 항목 로드
             val resultsSent = mediaSource.whenReady { successfullyInitialized ->
                 if (successfullyInitialized) {
                     val children = browseTree[parentMediaId]?.map { item ->
                         MediaItem(item.description, item.flag)
-                    }?: emptyList()
+                    } ?: emptyList()
                     result.sendResult(children)
                 } else {
                     mediaSession.sendSessionEvent(NETWORK_FAILURE, null)
@@ -347,9 +375,10 @@ open class MusicService : MediaBrowserServiceCompat() {
         result: Result<List<MediaItem>>
     ) {
 
-        *//**
-         * If the caller requests the recent root, return the most recently played song.
-         *//*
+        */
+    /**
+     * If the caller requests the recent root, return the most recently played song.
+     *//*
         if (parentMediaId == UAMP_RECENT_ROOT) {
             result.sendResult(storage.loadRecentSong()?.let { song -> listOf(song) })
         } else {
@@ -421,7 +450,8 @@ open class MusicService : MediaBrowserServiceCompat() {
         currentPlayer.stop()
         // Set playlist and prepare.
         currentPlayer.setMediaItems(
-            metadataList.map { it.toMediaItem() }, initialWindowIndex, playbackStartPositionMs)
+            metadataList.map { it.toMediaItem() }, initialWindowIndex, playbackStartPositionMs
+        )
         currentPlayer.prepare()
     }
 
@@ -535,7 +565,10 @@ open class MusicService : MediaBrowserServiceCompat() {
                 } else {
 
                     val playbackStartPositionMs =
-                        extras?.getLong(MEDIA_DESCRIPTION_EXTRAS_START_PLAYBACK_POSITION_MS, C.TIME_UNSET)
+                        extras?.getLong(
+                            MEDIA_DESCRIPTION_EXTRAS_START_PLAYBACK_POSITION_MS,
+                            C.TIME_UNSET
+                        )
                             ?: C.TIME_UNSET
 
                     preparePlaylist(
@@ -635,7 +668,8 @@ open class MusicService : MediaBrowserServiceCompat() {
                         val currentItem = currentPlaylistItems.getOrNull(currentMediaItemIndex)
                         if (currentItem != null) {
                             // BrowseTree에 접근하여 recent 항목 업데이트
-                            val recentItems = browseTree[UAMP_RECENT_ROOT]?.toMutableList() ?: mutableListOf()
+                            val recentItems =
+                                browseTree[UAMP_RECENT_ROOT]?.toMutableList() ?: mutableListOf()
 
                             // 중복 방지: 이미 존재하는 경우 제거하고 다시 추가
                             recentItems.removeAll { it.id == currentItem.id }
@@ -654,7 +688,7 @@ open class MusicService : MediaBrowserServiceCompat() {
                             mediaSession.sendSessionEvent("update_recent", null)
                             this@MusicService.notifyChildrenChanged(UAMP_RECENT_ROOT)
 
-                            Log.d("musicService","recentItems: ${recentItems}")
+                            Log.d("musicService", "recentItems: ${recentItems}")
                         }
 
                         // 현재 재생 중인 미디어 항목을 저장하여 장치 재부팅 후에도 유지
@@ -667,6 +701,7 @@ open class MusicService : MediaBrowserServiceCompat() {
                         }
                     }
                 }
+
                 else -> {
                     notificationManager.hideNotification()
                 }
@@ -677,7 +712,8 @@ open class MusicService : MediaBrowserServiceCompat() {
         override fun onEvents(player: Player, events: Player.Events) {
             if (events.contains(EVENT_POSITION_DISCONTINUITY)
                 || events.contains(EVENT_MEDIA_ITEM_TRANSITION)
-                || events.contains(EVENT_PLAY_WHEN_READY_CHANGED)) {
+                || events.contains(EVENT_PLAY_WHEN_READY_CHANGED)
+            ) {
                 currentMediaItemIndex = if (currentPlaylistItems.isNotEmpty()) {
                     constrainValue(
                         player.currentMediaItemIndex,
@@ -692,7 +728,8 @@ open class MusicService : MediaBrowserServiceCompat() {
             var message = R.string.generic_error;
             Log.e(TAG, "Player error: " + error.errorCodeName + " (" + error.errorCode + ")");
             if (error.errorCode == PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS
-                || error.errorCode == PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND) {
+                || error.errorCode == PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND
+            ) {
                 message = R.string.error_media_not_found;
             }
             Toast.makeText(

@@ -115,6 +115,11 @@ inline val MediaMetadataCompat.mediaUri: Uri
 inline val MediaMetadataCompat.downloadStatus
     get() = getLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS)
 
+//하트아이콘
+const val METADATA_KEY_HEART_ICON_URI = "com.example.android.uamp.media.METADATA_KEY_HEART_ICON_URI"
+inline val MediaMetadataCompat.heartIconUri: Uri?
+    get() = getString(METADATA_KEY_HEART_ICON_URI)?.toUri()
+
 /**
  * Custom property for storing whether a [MediaMetadataCompat] item represents an
  * item that is [MediaItem.FLAG_BROWSABLE] or [MediaItem.FLAG_PLAYABLE].
