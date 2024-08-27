@@ -516,7 +516,7 @@ open class MusicService : MediaBrowserServiceCompat() {
         // user actually wants to hear plays first.
         Log.d("musicservice","prepareplaylist - list: ${metadataList}, itemtoplay: ${metadataList.indexOf(itemToPlay)}")
         // 플레이리스트의 시작 인덱스를 명확히 설정합니다.
-        val initialWindowIndex = metadataList.indexOf(itemToPlay).takeIf { it >= 0 } ?: 0
+        val initialWindowIndex = metadataList.indexOfFirst { it.id == itemToPlay!!..id }.takeIf { it >= 0 } ?: 0
 
         currentPlaylistItems = metadataList
 
@@ -647,8 +647,11 @@ open class MusicService : MediaBrowserServiceCompat() {
             ).flatten()
 
             val itemToPlay: MediaMetadataCompat? = allMusicItems.find { item ->
+                Log.d("musicservice","onpreparefrommediaid: ${item.id}")
                 item.id == mediaId
             }
+
+
 
             Log.d(TAG, "onPrepareFromMediaId - itemToPlay: $itemToPlay")
             Log.d(TAG, "onPrepareFromMediaId - album: ${itemToPlay!!.album}, title: ${itemToPlay.title}, mediaUri: ${itemToPlay.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)}")
@@ -665,6 +668,7 @@ open class MusicService : MediaBrowserServiceCompat() {
                     ) ?: C.TIME_UNSET
 
 
+                Log.d("musicservice","onpreparefrommediaid: ${itemToPlay}")
                 // 플레이리스트 준비 및 재생
                 preparePlaylist(
                     buildPlaylist(itemToPlay),
