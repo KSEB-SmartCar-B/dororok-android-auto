@@ -3,6 +3,7 @@ package com.example.android.uamp.media.library
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
+import com.example.android.uamp.media.BuildConfig.BASE_URL
 import com.example.android.uamp.media.extensions.album
 import com.example.android.uamp.media.extensions.albumArtUri
 import com.example.android.uamp.media.extensions.artist
@@ -14,6 +15,7 @@ import com.example.android.uamp.media.extensions.title
 import com.example.android.uamp.media.extensions.trackNumber
 
 class MusicList {
+
     val daily: List<MediaMetadataCompat> = listOf(
         MediaMetadataCompat.Builder().apply {
             id = "1"
@@ -21,8 +23,8 @@ class MusicList {
             artist = "10cm"
             album = "daily"
             duration = 198
-            mediaUri = "http://20.41.105.73/media/daily/10cm.mp3"
-            albumArtUri = "http://20.41.105.73/media/daily/10cm.jpg"
+            mediaUri = "${BASE_URL}media/daily/10cm.mp3"
+            albumArtUri = "${BASE_URL}media/daily/10cm.jpg"
             trackNumber = 1
             flag = MediaItem.FLAG_PLAYABLE
         }.build(),
@@ -32,8 +34,8 @@ class MusicList {
             artist = "WINNER"
             album = "daily"
             duration = 203
-            mediaUri = "http://20.41.105.73/media/daily/winner.mp3"
-            albumArtUri = "http://20.41.105.73/media/daily/winner.jpg"
+            mediaUri = "${BASE_URL}media/daily/winner.mp3"
+            albumArtUri = "${BASE_URL}media/daily/winner.jpg"
             trackNumber = 2
             flag = MediaItem.FLAG_PLAYABLE
         }.build()
@@ -46,8 +48,8 @@ class MusicList {
             artist = "GFRIEND"
             album = "dororok"
             duration = 201
-            mediaUri = "http://20.41.105.73/media/dororok/gf.mp3"
-            albumArtUri = "http://20.41.105.73/media/dororok/gf.jpg"
+            mediaUri = "${BASE_URL}media/dororok/gf.mp3"
+            albumArtUri = "${BASE_URL}media/dororok/gf.jpg"
             trackNumber = 1
             flag = MediaItem.FLAG_PLAYABLE
         }.build(),
@@ -57,8 +59,8 @@ class MusicList {
             artist = "헤이즈"
             album = "dororok"
             duration = 206
-            mediaUri = "http://20.41.105.73/media/dororok/heize.mp3"
-            albumArtUri = "http://20.41.105.73/media/dororok/heize.jpg"
+            mediaUri = "${BASE_URL}media/dororok/heize.mp3"
+            albumArtUri = "${BASE_URL}media/dororok/heize.jpg"
             trackNumber = 2
             flag = MediaItem.FLAG_PLAYABLE
         }.build()
@@ -71,8 +73,8 @@ class MusicList {
             artist = "BLACKPINK"
             album = "drive"
             duration = 214
-            mediaUri = "http://20.41.105.73/media/drive/bpink.mp3"
-            albumArtUri = "http://20.41.105.73/media/drive/bpink.jpg"
+            mediaUri = "${BASE_URL}media/drive/bpink.mp3"
+            albumArtUri = "${BASE_URL}media/drive/bpink.jpg"
             trackNumber = 1
             flag = MediaItem.FLAG_PLAYABLE
         }.build(),
@@ -82,8 +84,8 @@ class MusicList {
             artist = "DEAN"
             album = "drive"
             duration = 195
-            mediaUri = "http://20.41.105.73/media/drive/D.mp3"
-            albumArtUri = "http://20.41.105.73/media/drive/D.jpg"
+            mediaUri = "${BASE_URL}media/drive/D.mp3"
+            albumArtUri = "${BASE_URL}media/drive/D.jpg"
             trackNumber = 2
             flag = MediaItem.FLAG_PLAYABLE
         }.build()
@@ -96,8 +98,8 @@ class MusicList {
             artist = "아이유(IU)"
             album = "leaveWork"
             duration = 234
-            mediaUri = "http://20.41.105.73/media/leave_work/iu.mp3"
-            albumArtUri = "http://20.41.105.73/media/leave_work/iu.jpg"
+            mediaUri = "${BASE_URL}media/leave_work/iu.mp3"
+            albumArtUri = "${BASE_URL}media/leave_work/iu.jpg"
             trackNumber = 1
             flag = MediaItem.FLAG_PLAYABLE
         }.build(),
@@ -107,8 +109,8 @@ class MusicList {
             artist = "효린, 창모 (CHANGMO)"
             album = "leaveWork"
             duration = 204
-            mediaUri = "http://20.41.105.73/media/leave_work/bluemoon.mp3"
-            albumArtUri = "http://20.41.105.73/media/leave_work/bluemoon.jpg"
+            mediaUri = "${BASE_URL}media/leave_work/bluemoon.mp3"
+            albumArtUri = "${BASE_URL}media/leave_work/bluemoon.jpg"
             trackNumber = 2
             flag = MediaItem.FLAG_PLAYABLE
         }.build()
@@ -121,8 +123,8 @@ class MusicList {
             artist = "싸이 (PSY)"
             album = "toWork"
             duration = 191
-            mediaUri = "http://20.41.105.73/media/to_work/newface.mp3"
-            albumArtUri = "http://20.41.105.73/media/to_work/newface.jpg"
+            mediaUri = "${BASE_URL}media/to_work/newface.mp3"
+            albumArtUri = "${BASE_URL}media/to_work/newface.jpg"
             trackNumber = 1
             flag = MediaItem.FLAG_PLAYABLE
         }.build(),
@@ -132,8 +134,8 @@ class MusicList {
             artist = "하이라이트 (Highlight)"
             album = "toWork"
             duration = 186
-            mediaUri = "http://20.41.105.73/media/to_work/face.mp3"
-            albumArtUri = "http://20.41.105.73/media/to_work/face.jpg"
+            mediaUri = "${BASE_URL}media/to_work/face.mp3"
+            albumArtUri = "${BASE_URL}media/to_work/face.jpg"
             trackNumber = 2
             flag = MediaItem.FLAG_PLAYABLE
         }.build()
@@ -146,8 +148,8 @@ class MusicList {
             artist = "TWICE (트와이스)"
             album = "travel"
             duration = 208
-            mediaUri = "http://20.41.105.73/media/travel/likey.mp3"
-            albumArtUri = "http://20.41.105.73/media/travel/likey.jpg"
+            mediaUri = "${BASE_URL}media/travel/likey.mp3"
+            albumArtUri = "${BASE_URL}media/travel/likey.jpg"
             trackNumber = 1
             flag = MediaItem.FLAG_PLAYABLE
         }.build(),
@@ -157,8 +159,8 @@ class MusicList {
             artist = "방탄소년단"
             album = "travel"
             duration = 236
-            mediaUri = "http://20.41.105.73/media/travel/go.mp3"
-            albumArtUri = "http://20.41.105.73/media/travel/go.jpg"
+            mediaUri = "${BASE_URL}media/travel/go.mp3"
+            albumArtUri = "${BASE_URL}media/travel/go.jpg"
             trackNumber = 2
             flag = MediaItem.FLAG_PLAYABLE
         }.build()
@@ -171,8 +173,8 @@ class MusicList {
             artist = "에픽 하이 (EPIK HIGH)"
             album = "withFriends"
             duration = 278
-            mediaUri = "http://20.41.105.73/media/with_friends/nothanks.mp3"
-            albumArtUri = "http://20.41.105.73/media/with_friends/nothanks.jpg"
+            mediaUri = "${BASE_URL}media/with_friends/nothanks.mp3"
+            albumArtUri = "${BASE_URL}media/with_friends/nothanks.jpg"
             trackNumber = 1
             flag = MediaItem.FLAG_PLAYABLE
         }.build(),
@@ -182,8 +184,8 @@ class MusicList {
             artist = "지코 (ZICO)"
             album = "withFriends"
             duration = 193
-            mediaUri = "http://20.41.105.73/media/with_friends/artist.mp3"
-            albumArtUri = "http://20.41.105.73/media/with_friends/artist.jpg"
+            mediaUri = "${BASE_URL}media/with_friends/artist.mp3"
+            albumArtUri = "${BASE_URL}media/with_friends/artist.jpg"
             trackNumber = 2
             flag = MediaItem.FLAG_PLAYABLE
         }.build()
@@ -196,8 +198,8 @@ class MusicList {
             artist = "박원"
             album = "withLover"
             duration = 250
-            mediaUri = "http://20.41.105.73/media/with_lover/allofmylife.mp3"
-            albumArtUri = "http://20.41.105.73/media/with_lover/allofmylife.jpg"
+            mediaUri = "${BASE_URL}media/with_lover/allofmylife.mp3"
+            albumArtUri = "${BASE_URL}media/with_lover/allofmylife.jpg"
             trackNumber = 1
             flag = MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
         }.build(),
@@ -207,8 +209,8 @@ class MusicList {
             artist = "볼빨간사춘기"
             album = "withLover"
             duration = 182
-            mediaUri = "http://20.41.105.73/media/with_lover/some.mp3"
-            albumArtUri = "http://20.41.105.73/media/with_lover/some.jpg"
+            mediaUri = "${BASE_URL}media/with_lover/some.mp3"
+            albumArtUri = "${BASE_URL}media/with_lover/some.jpg"
             trackNumber = 2
             flag = MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
         }.build()
