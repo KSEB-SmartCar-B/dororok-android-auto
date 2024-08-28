@@ -32,6 +32,13 @@ android {
 
         testOptions.unitTests.includeAndroidResources = true
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+
+        // gradleLocalProperties 메소드를 사용하여 BASE_URL 설정
+        buildConfigField(
+                "String",
+                "BASE_URL",
+                "${gradleLocalProperties(rootDir).getProperty("base.url")}"
+        )
     }
 
     buildTypes {
@@ -44,6 +51,19 @@ android {
         targetCompatibility = '17'
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+}
+
+// gradleLocalProperties 메소드 정의
+def gradleLocalProperties(rootDir) {
+    Properties properties = new Properties()
+    File localPropertiesFile = new File(rootDir, "local.properties")
+    if (localPropertiesFile.exists()) {
+        properties.load(new FileInputStream(localPropertiesFile))
+    }
+    return properties
 }
 
 dependencies {
