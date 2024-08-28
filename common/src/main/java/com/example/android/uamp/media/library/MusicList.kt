@@ -19,24 +19,101 @@ class MusicList {
     val daily: List<MediaMetadataCompat> = listOf(
         MediaMetadataCompat.Builder().apply {
             id = "1"
-            title = "폰서트"
-            artist = "10cm"
+            title = "Supernova"
+            artist = "aespa"
             album = "daily"
-            duration = 198
-            mediaUri = "${BASE_URL}media/daily/10cm.mp3"
-            albumArtUri = "${BASE_URL}media/daily/10cm.jpg"
+            duration = 180
+            mediaUri = "${BASE_URL}media/daily/supernova.mp3"
+            albumArtUri = "${BASE_URL}media/daily/supernova.jpg"
             trackNumber = 1
             flag = MediaItem.FLAG_PLAYABLE
         }.build(),
         MediaMetadataCompat.Builder().apply {
             id = "2"
-            title = "REALLY REALLY"
-            artist = "WINNER"
+            title = "Sticky"
+            artist = "KISS OF LIFE"
             album = "daily"
-            duration = 203
-            mediaUri = "${BASE_URL}media/daily/winner.mp3"
-            albumArtUri = "${BASE_URL}media/daily/winner.jpg"
+            duration = 158
+            mediaUri = "${BASE_URL}media/daily/sticky.mp3"
+            albumArtUri = "${BASE_URL}media/daily/sticky.jpg"
             trackNumber = 2
+            flag = MediaItem.FLAG_PLAYABLE
+        }.build(),
+        MediaMetadataCompat.Builder().apply {
+            id = "17"
+            title = "Small girl (feat. 도경수(D.O.))"
+            artist = "이영지"
+            album = "daily"
+            duration = 190
+            mediaUri = "${BASE_URL}media/daily/smallgirl.mp3"
+            albumArtUri = "${BASE_URL}media/daily/smallgirl.jpg"
+            trackNumber = 3
+            flag = MediaItem.FLAG_PLAYABLE
+        }.build(),
+        MediaMetadataCompat.Builder().apply {
+            id = "18"
+            title = "Welcome to the Show"
+            artist = "DAY6(데이식스)"
+            album = "daily"
+            duration = 218
+            mediaUri = "${BASE_URL}media/daily/welcometotheshow.mp3"
+            albumArtUri = "${BASE_URL}media/daily/welcometotheshow.jpg"
+            trackNumber = 4
+            flag = MediaItem.FLAG_PLAYABLE
+        }.build(),
+        MediaMetadataCompat.Builder().apply {
+            id = "19"
+            title = "고민중독"
+            artist = "QWER"
+            album = "daily"
+            duration = 176
+            mediaUri = "${BASE_URL}media/daily/gmjd.mp3"
+            albumArtUri = "${BASE_URL}media/daily/gmjd.jpg"
+            trackNumber = 5
+            flag = MediaItem.FLAG_PLAYABLE
+        }.build(),
+        MediaMetadataCompat.Builder().apply {
+            id = "20"
+            title = "SPOT! (feat. JENNIE)"
+            artist = "지코 (ZICO)"
+            album = "daily"
+            duration = 168
+            mediaUri = "${BASE_URL}media/daily/spot.mp3"
+            albumArtUri = "${BASE_URL}media/daily/spot.jpg"
+            trackNumber = 6
+            flag = MediaItem.FLAG_PLAYABLE
+        }.build(),
+        MediaMetadataCompat.Builder().apply {
+            id = "21"
+            title = "Love wins all"
+            artist = "아이유(IU)"
+            album = "daily"
+            duration = 272
+            mediaUri = "${BASE_URL}media/daily/lovewinsall.mp3"
+            albumArtUri = "${BASE_URL}media/daily/lovewinsall.jpg"
+            trackNumber = 7
+            flag = MediaItem.FLAG_PLAYABLE
+        }.build(),
+        MediaMetadataCompat.Builder().apply {
+            id = "22"
+            title = "주저하는 연인들을 위해"
+            artist = "잔나비"
+            album = "daily"
+            duration = 266
+            mediaUri = "${BASE_URL}media/daily/jnb.mp3"
+            albumArtUri = "${BASE_URL}media/daily/jnb.jpg"
+            trackNumber = 8
+            flag = MediaItem.FLAG_PLAYABLE
+        }.build(),
+        MediaMetadataCompat.Builder().apply {
+            id = "23"
+            title = "사건의 지평선"
+            artist = "윤하"
+            album = "daily"
+            duration = 301
+            mediaUri = "${BASE_URL}media/daily/yh.mp3"
+            albumArtUri = "${BASE_URL}media/daily/yh.jpg"
+            trackNumber = 9
             flag = MediaItem.FLAG_PLAYABLE
         }.build()
     )
@@ -88,8 +165,99 @@ class MusicList {
             albumArtUri = "${BASE_URL}media/drive/D.jpg"
             trackNumber = 2
             flag = MediaItem.FLAG_PLAYABLE
+        }.build(),
+        MediaMetadataCompat.Builder().apply {
+            id = "24"
+            title = "한 페이지가 될 수 있게"
+            artist = "Day6(데이식스)"
+            album = "drive"
+            duration = 206
+            mediaUri = "${BASE_URL}media/drive/1page.mp3"
+            albumArtUri = "${BASE_URL}media/drive/1page.jpg"
+            trackNumber = 3
+            flag = MediaItem.FLAG_PLAYABLE
+        }.build(),
+        MediaMetadataCompat.Builder().apply {
+            id = "25"
+            title = "Square (2017)"
+            artist = "백예린 (Yerin Baek)"
+            album = "drive"
+            duration = 262
+            mediaUri = "${BASE_URL}media/drive/square.mp3"
+            albumArtUri = "${BASE_URL}media/drive/square.jpg"
+            trackNumber = 4
+            flag = MediaItem.FLAG_PLAYABLE
+        }.build(),
+        MediaMetadataCompat.Builder().apply {
+            id = "26"
+            title = "All I Wanna Do (feat. Hoody & Loco)"
+            artist = "Jay Park(박재범)"
+            album = "drive"
+            duration = 215
+            mediaUri = "${BASE_URL}media/drive/alliwannado.mp3"
+            albumArtUri = "${BASE_URL}media/drive/alliwannado.jpg"
+            trackNumber = 5
+            flag = MediaItem.FLAG_PLAYABLE
+        }.build(),
+        MediaMetadataCompat.Builder().apply {
+            id = "27"
+            title = "Peaches (feat. Daniel Caesar, Giveon)"
+            artist = "Justin Bieber"
+            album = "drive"
+            duration = 199
+            mediaUri = "${BASE_URL}media/drive/peaches.mp3"
+            albumArtUri = "${BASE_URL}media/drive/peaches.jpg"
+            trackNumber = 6
+            flag = MediaItem.FLAG_PLAYABLE
+        }.build(),
+        MediaMetadataCompat.Builder().apply {
+            id = "28"
+            title = "Drive (feat. GRAY)"
+            artist = "Jay Park(박재범)"
+            album = "drive"
+            duration = 213
+            mediaUri = "${BASE_URL}media/drive/drive.mp3"
+            albumArtUri = "${BASE_URL}media/drive/drive.jpg"
+            trackNumber = 7
+            flag = MediaItem.FLAG_PLAYABLE
+        }.build(),
+        MediaMetadataCompat.Builder().apply {
+            id = "29"
+            title = "흔들리는 꽃들 속에서 네 샴푸향이 느껴진거야"
+            artist = "장범준"
+            album = "drive"
+            duration = 169
+            mediaUri = "${BASE_URL}media/drive/jbj.mp3"
+            albumArtUri = "${BASE_URL}media/drive/jbj.jpg"
+            trackNumber = 8
+            flag = MediaItem.FLAG_PLAYABLE
+        }.build(),
+        MediaMetadataCompat.Builder().apply {
+            id = "30"
+            title = "어푸"
+            artist = "아이유(IU)"
+            album = "drive"
+            duration = 201
+            mediaUri = "${BASE_URL}media/drive/ahpuh.mp3"
+            albumArtUri = "${BASE_URL}media/drive/ahpuh.jpg"
+            trackNumber = 9
+            flag = MediaItem.FLAG_PLAYABLE
+        }.build(),
+        MediaMetadataCompat.Builder().apply {
+            id = "31"
+            title = "그라데이션"
+            artist = "10cm"
+            album = "drive"
+            duration = 202
+            mediaUri = "${BASE_URL}media/drive/gradation.mp3"
+            albumArtUri = "${BASE_URL}media/drive/gradation.jpg"
+            trackNumber = 10
+            flag = MediaItem.FLAG_PLAYABLE
         }.build()
+
+
     )
+
 
     val leaveWork: List<MediaMetadataCompat> = listOf(
         MediaMetadataCompat.Builder().apply {
