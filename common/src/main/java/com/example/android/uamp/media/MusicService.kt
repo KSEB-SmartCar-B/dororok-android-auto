@@ -516,7 +516,7 @@ open class MusicService : MediaBrowserServiceCompat() {
         // user actually wants to hear plays first.
         Log.d("musicservice","prepareplaylist - list: ${metadataList}, itemtoplay: ${metadataList.indexOf(itemToPlay)}")
         // 플레이리스트의 시작 인덱스를 명확히 설정합니다.
-        val initialWindowIndex = metadataList.indexOfFirst { it.id == itemToPlay!!..id }.takeIf { it >= 0 } ?: 0
+        val initialWindowIndex = metadataList.indexOfFirst { it.id == itemToPlay!!.id }.takeIf { it >= 0 } ?: 0
 
         currentPlaylistItems = metadataList
 
